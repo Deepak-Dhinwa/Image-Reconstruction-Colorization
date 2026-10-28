@@ -5,20 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Reconstruction and Color</title>
 <style>
-:root { --ink:#1c1915; --muted:#5c564c; --line:#d9d1c3; --paper:#f6f1e7; --card:#fffdf8; --accent:#245C4A; }
+
+:root { --ink:#1c1915; --muted:#5c564c; --line:#d9d1c3; --paper:#f6f1e7; --card:#fffdf8; --accent:#3F3A2E; }
 * { box-sizing:border-box; }
 body { margin:0; background:#e7e1d6; color:var(--ink); font-family:Georgia, "Iowan Old Style", serif; }
 .sheet { max-width:1180px; margin:28px auto; background:var(--paper); border:1px solid var(--line); }
-.band { display:grid; grid-template-columns:1.25fr 1fr 0.9fr; border-top:1px solid var(--line); }
-.band section { padding-bottom:18px; }
-header { display:flex; justify-content:space-between; gap:24px; padding:28px 32px 18px; border-bottom:3px solid var(--accent); }
+header { display:flex; justify-content:space-between; gap:24px; padding:26px 32px 16px; border-bottom:3px solid var(--accent); }
 h1 { font-size:34px; line-height:1.05; margin:0 0 8px; letter-spacing:-0.4px; }
-.claim { margin:0; font-family:"Segoe UI", sans-serif; font-size:16px; color:var(--muted); max-width:680px; }
+.claim { margin:0; font-family:"Segoe UI", sans-serif; font-size:16px; color:var(--muted); max-width:720px; }
 .kicker { font-family:"Segoe UI", sans-serif; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin:0 0 8px; }
 .tags { font-family:"Segoe UI", sans-serif; font-size:12px; text-align:right; color:var(--muted); }
 .tags span { display:inline-block; border:1px solid var(--line); padding:4px 8px; margin:0 0 6px 6px; background:var(--card); }
-.grid { display:grid; grid-template-columns:1.1fr 1fr 0.9fr; }
-section { padding:22px 24px 8px; border-right:1px solid var(--line); }
+.path { display:grid; grid-template-columns:repeat(4,1fr); list-style:none; margin:0; padding:0; border-bottom:1px solid var(--line); }
+.path li { padding:12px 16px 14px; border-right:1px solid var(--line); }
+.path li:last-child { border-right:0; }
+.path b { display:block; font-family:"Segoe UI", sans-serif; font-size:11px; letter-spacing:0.12em; color:var(--accent); margin-bottom:4px; }
+.path span { font-family:"Segoe UI", sans-serif; font-size:13.5px; line-height:1.35; }
+.grid, .band { display:grid; grid-template-columns:1.15fr 1fr 0.9fr; }
+.band { border-top:1px solid var(--line); }
+section { padding:18px 22px 8px; border-right:1px solid var(--line); }
 section:last-child { border-right:0; }
 h2 { font-family:"Segoe UI", sans-serif; font-size:12px; letter-spacing:0.16em; text-transform:uppercase; margin:0 0 10px; color:var(--accent); }
 p, li { font-family:"Segoe UI", sans-serif; font-size:14.5px; line-height:1.45; }
@@ -26,35 +31,81 @@ ul { margin:0; padding-left:18px; }
 .stat { border-top:1px solid var(--line); padding:10px 0; }
 .stat b { display:block; font-size:26px; font-family:Georgia, serif; }
 .stat span { font-family:"Segoe UI", sans-serif; font-size:12px; color:var(--muted); }
-footer { display:flex; justify-content:space-between; gap:20px; padding:16px 32px 22px; border-top:1px solid var(--line); font-family:"Segoe UI", sans-serif; font-size:14px; }
+.out { font-family:Consolas, monospace; font-size:12.5px; line-height:1.55; background:var(--card); border:1px solid var(--line); padding:10px 12px; margin:0 0 8px; white-space:pre-wrap; }
+.shots { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding:8px 22px 18px; border-top:1px solid var(--line); }
+.shots.one { grid-template-columns:1fr; }
+.shots.two { grid-template-columns:1.15fr 1fr; }
+.shots figure { margin:0; background:var(--card); border:1px solid var(--line); }
+.shots img { width:100%; height:190px; object-fit:contain; background:#fff; display:block; }
+.shots.one img { height:280px; }
+.shots figcaption { font-family:"Segoe UI", sans-serif; font-size:12px; color:var(--muted); padding:6px 8px 8px; }
+.next { margin:0; padding:12px 28px 16px; border-top:1px solid var(--line); font-family:"Segoe UI", sans-serif; font-size:13.5px; color:var(--muted); line-height:1.45; }
+.next b { color:var(--ink); font-weight:600; }
+footer { display:flex; justify-content:space-between; gap:20px; padding:16px 28px 22px; border-top:1px solid var(--line); font-family:"Segoe UI", sans-serif; font-size:14px; }
 code { font-family:Consolas, monospace; background:var(--card); border:1px solid var(--line); padding:2px 6px; }
-@media (max-width:800px) { .grid, .band { grid-template-columns:1fr; } section { border-right:0; border-bottom:1px solid var(--line); } header, footer { display:block; } .tags { text-align:left; margin-top:12px; } }
+@media (max-width:800px) {
+  .grid, .band, .path, .shots, .shots.two { grid-template-columns:1fr; }
+  section { border-right:0; border-bottom:1px solid var(--line); }
+  header, footer { display:block; }
+  .tags { text-align:left; margin-top:12px; }
+}
+
 </style>
 </head>
 <body>
 <article class="sheet">
+
   <header>
     <div>
       <p class="kicker">Built model</p>
       <h1>Reconstruction and Color</h1>
-      <p class="claim">One frozen DINOv2 encoder, adapted with LoRA, feeds two heads: fill the missing image, and guess the color.</p>
+      <p class="claim">One frozen vision backbone, adapted with a small LoRA, feeds two heads: fill the missing image, and guess the color.</p>
     </div>
     <div class="tags"><span>DINOv2</span><span>LoRA</span><span>COCO 2017</span></div>
   </header>
+  <ol class="path">
+    <li><b>01 · Freeze the eye</b><span>DINOv2 ViT-S/14 stays frozen. It already knows patches.</span></li>
+    <li><b>02 · Adapt lightly</b><span>LoRA rank 32, plus the last transformer block. That is what fits a 4 GB card.</span></li>
+    <li><b>03 · Two heads</b><span>A shared decoder splits into an RGB reconstruction head and a Lab color head.</span></li>
+    <li><b>04 · Look</b><span>Masked input, reconstruction, color, and the original, side by side.</span></li>
+  </ol>
   <div class="grid">
-    <section><h2>Question</h2><ul><li>Can a shared vision backbone reconstruct a damaged image and colorize a gray one without two separate networks?</li></ul></section>
-    <section><h2>Method</h2><ul><li>DINOv2 ViT-S/14 stays frozen. LoRA rank 32 is what trains.</li><li>A shared decoder splits into an RGB reconstruction head and a Lab color head.</li><li>Trained on COCO 2017. The saved weights are model_BEST_smallgpu.pth.</li></ul></section>
-    <section><h2>Evidence</h2><div class="stat"><b>2</b><span>epochs completed</span></div><div class="stat"><b>5,000</b><span>COCO val images on disk</span></div><div class="stat"><b>5</b><span>comparison images in results/</span></div></section>
+    <section><h2>Question</h2><ul>
+      <li>Can one backbone both repair a damaged image and color a gray one, without training two networks?</li>
+    </ul></section>
+    <section><h2>Why this path</h2><ul>
+      <li>Full fine-tuning of the backbone does not fit the GPU. LoRA trains the difference.</li>
+      <li>Reconstruction and color share the encoder, then split, so each head can be judged on its own.</li>
+    </ul></section>
+    <section><h2>What held</h2>
+      <div class="stat"><b>2 heads</b><span>RGB repair and Lab color, one decoder</span></div>
+      <div class="stat"><b>LoRA 32</b><span>what actually trains</span></div>
+      <div class="stat"><b>5,000</b><span>COCO val images on disk</span></div>
+    </section>
   </div>
   <div class="band">
-    <section><h2>What the result actually says</h2><ul><li>DINOv2 ViT-S/14 stays frozen. LoRA rank 32, scale 32, is what trains, plus the last transformer block. That is what fits a 4 GB RTX 3050.</li><li>Reconstruction loss is 0.8 L1 plus 0.2 times one minus SSIM. Color is a separate Lab head on the same decoder.</li><li>Five comparison images are in results/. Reconstruction holds structure. Color is only partly learned.</li></ul></section>
-    <section><h2>What it does not show</h2><ul><li>Training stopped at 2 epochs, batch size 1, with gradient accumulation. The report is explicit that color needs something like 20 epochs.</li><li>The best weights, model_BEST_smallgpu.pth, are 97 MB and stay on this machine. GitHub has the code and the five sample images, not the checkpoint.</li></ul></section>
-    <section><h2>Beside the other attempts</h2><ul><li>The two heads share the encoder and the decoder, then split. Reconstruction is the head that became usable. Colorization is the head that did not.</li><li>COCO 2017 validation is 5,000 images on disk. Training images are the COCO train split, also local.</li></ul></section>
+    <section><h2>Reading the result</h2><ul>
+      <li>Reconstruction loss is mostly L1, with a little SSIM, so the head is pushed to keep structure.</li>
+      <li>On a held-out photo the pose and the court survive the mask. Color is learning the scene, grass and kit, and is the head that still wants a longer run.</li>
+      <li>This pass is 2 epochs at batch size 1, with gradient accumulation. The architecture is in place. Color is the part a longer budget would move.</li>
+    </ul></section>
+    <section><h2>A real output</h2>
+      <p>One validation image, saved by <code>inference.py</code>. Left to right: masked input, reconstruction, colorization, original.</p>
+    </section>
+    <section><h2>Why it stopped here</h2><ul>
+      <li>The card is a 4 GB RTX 3050. Rank, batch, and epoch count were chosen so a run could finish.</li>
+      <li>The best weights, <code>model_BEST_smallgpu.pth</code>, stay on this machine. The five sample images are in <code>results/</code>.</li>
+    </ul></section>
   </div>
+  <div class="shots one">
+    <figure><img src="results/result_0.png" alt="Reconstruction and colorization sample"><figcaption>Structure holds in the reconstruction. Color is the head still learning the scene.</figcaption></figure>
+  </div>
+  <p class="next"><b>Next pass.</b> The color head is the open half. The training notes point at something like 20 epochs before that head is judged finished.</p>
   <footer>
-    <div><h2>Stack</h2><p>PyTorch 2.5.1 with CUDA, DINOv2, LoRA. Environment is recon-color_env. Do not upgrade it. The checkpoint it matches is model_BEST_smallgpu.pth.</p></div>
+    <div><h2>Stack</h2><p>PyTorch, DINOv2, LoRA. Environment is <code>recon-color_env</code>. Leave that environment on the versions that match the checkpoint.</p></div>
     <div><h2>Look at it</h2><p>Run <code>.\run.ps1</code>. It rewrites <code>results/result_0.png</code> through <code>result_4.png</code>.</p></div>
   </footer>
+
 </article>
 </body>
 </html>
