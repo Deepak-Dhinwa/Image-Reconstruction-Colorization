@@ -8,7 +8,9 @@
 :root { --ink:#1c1915; --muted:#5c564c; --line:#d9d1c3; --paper:#f6f1e7; --card:#fffdf8; --accent:#245C4A; }
 * { box-sizing:border-box; }
 body { margin:0; background:#e7e1d6; color:var(--ink); font-family:Georgia, "Iowan Old Style", serif; }
-.sheet { max-width:1100px; margin:28px auto; background:var(--paper); border:1px solid var(--line); }
+.sheet { max-width:1180px; margin:28px auto; background:var(--paper); border:1px solid var(--line); }
+.band { display:grid; grid-template-columns:1.25fr 1fr 0.9fr; border-top:1px solid var(--line); }
+.band section { padding-bottom:18px; }
 header { display:flex; justify-content:space-between; gap:24px; padding:28px 32px 18px; border-bottom:3px solid var(--accent); }
 h1 { font-size:34px; line-height:1.05; margin:0 0 8px; letter-spacing:-0.4px; }
 .claim { margin:0; font-family:"Segoe UI", sans-serif; font-size:16px; color:var(--muted); max-width:680px; }
@@ -26,7 +28,7 @@ ul { margin:0; padding-left:18px; }
 .stat span { font-family:"Segoe UI", sans-serif; font-size:12px; color:var(--muted); }
 footer { display:flex; justify-content:space-between; gap:20px; padding:16px 32px 22px; border-top:1px solid var(--line); font-family:"Segoe UI", sans-serif; font-size:14px; }
 code { font-family:Consolas, monospace; background:var(--card); border:1px solid var(--line); padding:2px 6px; }
-@media (max-width:800px) { .grid { grid-template-columns:1fr; } section { border-right:0; border-bottom:1px solid var(--line); } header, footer { display:block; } .tags { text-align:left; margin-top:12px; } }
+@media (max-width:800px) { .grid, .band { grid-template-columns:1fr; } section { border-right:0; border-bottom:1px solid var(--line); } header, footer { display:block; } .tags { text-align:left; margin-top:12px; } }
 </style>
 </head>
 <body>
@@ -44,8 +46,13 @@ code { font-family:Consolas, monospace; background:var(--card); border:1px solid
     <section><h2>Method</h2><ul><li>DINOv2 ViT-S/14 stays frozen. LoRA rank 32 is what trains.</li><li>A shared decoder splits into an RGB reconstruction head and a Lab color head.</li><li>Trained on COCO 2017. The saved weights are model_BEST_smallgpu.pth.</li></ul></section>
     <section><h2>Evidence</h2><div class="stat"><b>2</b><span>epochs completed</span></div><div class="stat"><b>5,000</b><span>COCO val images on disk</span></div><div class="stat"><b>5</b><span>comparison images in results/</span></div></section>
   </div>
+  <div class="band">
+    <section><h2>What the result actually says</h2><ul><li>DINOv2 ViT-S/14 stays frozen. LoRA rank 32, scale 32, is what trains, plus the last transformer block. That is what fits a 4 GB RTX 3050.</li><li>Reconstruction loss is 0.8 L1 plus 0.2 times one minus SSIM. Color is a separate Lab head on the same decoder.</li><li>Five comparison images are in results/. Reconstruction holds structure. Color is only partly learned.</li></ul></section>
+    <section><h2>What it does not show</h2><ul><li>Training stopped at 2 epochs, batch size 1, with gradient accumulation. The report is explicit that color needs something like 20 epochs.</li><li>The best weights, model_BEST_smallgpu.pth, are 97 MB and stay on this machine. GitHub has the code and the five sample images, not the checkpoint.</li></ul></section>
+    <section><h2>Beside the other attempts</h2><ul><li>The two heads share the encoder and the decoder, then split. Reconstruction is the head that became usable. Colorization is the head that did not.</li><li>COCO 2017 validation is 5,000 images on disk. Training images are the COCO train split, also local.</li></ul></section>
+  </div>
   <footer>
-    <div><h2>What came out of it</h2><ul><li>Reconstruction is the stronger head. Color is under-trained and still shifts.</li><li>The weights stay on this machine. GitHub has the code and the sample comparisons.</li></ul></div>
+    <div><h2>Stack</h2><p>PyTorch 2.5.1 with CUDA, DINOv2, LoRA. Environment is recon-color_env. Do not upgrade it. The checkpoint it matches is model_BEST_smallgpu.pth.</p></div>
     <div><h2>Look at it</h2><p>Run <code>.\run.ps1</code>. It rewrites <code>results/result_0.png</code> through <code>result_4.png</code>.</p></div>
   </footer>
 </article>
