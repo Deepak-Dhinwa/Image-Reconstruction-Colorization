@@ -1,0 +1,7 @@
+__pycache__/
+coco_train2017/
+coco_val2017/
+recon-color_env/
+wandb/
+checkpoint_LATEST_smallgpu.pth
+*.pth

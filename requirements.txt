@@ -1,0 +1,8 @@
+torch
+torchvision
+timm 
+torchmetrics
+scikit-image
+numpy
+tqdm
+wandb

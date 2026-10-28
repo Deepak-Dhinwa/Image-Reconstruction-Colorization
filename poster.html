@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reconstruction and Color</title>
+<style>
+:root { --ink:#1c1915; --muted:#5c564c; --line:#d9d1c3; --paper:#f6f1e7; --card:#fffdf8; --accent:#245C4A; }
+* { box-sizing:border-box; }
+body { margin:0; background:#e7e1d6; color:var(--ink); font-family:Georgia, "Iowan Old Style", serif; }
+.sheet { max-width:1100px; margin:28px auto; background:var(--paper); border:1px solid var(--line); }
+header { display:flex; justify-content:space-between; gap:24px; padding:28px 32px 18px; border-bottom:3px solid var(--accent); }
+h1 { font-size:34px; line-height:1.05; margin:0 0 8px; letter-spacing:-0.4px; }
+.claim { margin:0; font-family:"Segoe UI", sans-serif; font-size:16px; color:var(--muted); max-width:680px; }
+.kicker { font-family:"Segoe UI", sans-serif; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); margin:0 0 8px; }
+.tags { font-family:"Segoe UI", sans-serif; font-size:12px; text-align:right; color:var(--muted); }
+.tags span { display:inline-block; border:1px solid var(--line); padding:4px 8px; margin:0 0 6px 6px; background:var(--card); }
+.grid { display:grid; grid-template-columns:1.1fr 1fr 0.9fr; }
+section { padding:22px 24px 8px; border-right:1px solid var(--line); }
+section:last-child { border-right:0; }
+h2 { font-family:"Segoe UI", sans-serif; font-size:12px; letter-spacing:0.16em; text-transform:uppercase; margin:0 0 10px; color:var(--accent); }
+p, li { font-family:"Segoe UI", sans-serif; font-size:14.5px; line-height:1.45; }
+ul { margin:0; padding-left:18px; }
+.stat { border-top:1px solid var(--line); padding:10px 0; }
+.stat b { display:block; font-size:26px; font-family:Georgia, serif; }
+.stat span { font-family:"Segoe UI", sans-serif; font-size:12px; color:var(--muted); }
+footer { display:flex; justify-content:space-between; gap:20px; padding:16px 32px 22px; border-top:1px solid var(--line); font-family:"Segoe UI", sans-serif; font-size:14px; }
+code { font-family:Consolas, monospace; background:var(--card); border:1px solid var(--line); padding:2px 6px; }
+@media (max-width:800px) { .grid { grid-template-columns:1fr; } section { border-right:0; border-bottom:1px solid var(--line); } header, footer { display:block; } .tags { text-align:left; margin-top:12px; } }
+</style>
+</head>
+<body>
+<article class="sheet">
+  <header>
+    <div>
+      <p class="kicker">Built model</p>
+      <h1>Reconstruction and Color</h1>
+      <p class="claim">One frozen DINOv2 encoder, adapted with LoRA, feeds two heads: fill the missing image, and guess the color.</p>
+    </div>
+    <div class="tags"><span>DINOv2</span><span>LoRA</span><span>COCO 2017</span></div>
+  </header>
+  <div class="grid">
+    <section><h2>Question</h2><ul><li>Can a shared vision backbone reconstruct a damaged image and colorize a gray one without two separate networks?</li></ul></section>
+    <section><h2>Method</h2><ul><li>DINOv2 ViT-S/14 stays frozen. LoRA rank 32 is what trains.</li><li>A shared decoder splits into an RGB reconstruction head and a Lab color head.</li><li>Trained on COCO 2017. The saved weights are model_BEST_smallgpu.pth.</li></ul></section>
+    <section><h2>Evidence</h2><div class="stat"><b>2</b><span>epochs completed</span></div><div class="stat"><b>5,000</b><span>COCO val images on disk</span></div><div class="stat"><b>5</b><span>comparison images in results/</span></div></section>
+  </div>
+  <footer>
+    <div><h2>What came out of it</h2><ul><li>Reconstruction is the stronger head. Color is under-trained and still shifts.</li><li>The weights stay on this machine. GitHub has the code and the sample comparisons.</li></ul></div>
+    <div><h2>Look at it</h2><p>Run <code>.\run.ps1</code>. It rewrites <code>results/result_0.png</code> through <code>result_4.png</code>.</p></div>
+  </footer>
+</article>
+</body>
+</html>
